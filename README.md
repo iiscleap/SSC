@@ -1,4 +1,4 @@
-# Deep Self-Supervised Hierarchical Clustering for Speaker Diarization
+# Self-Supervised Representation Learning and Clustering for Speaker Diarization  
 
 This repository is code used in our paper:
 > Self-Supervised Representation Learning and Clustering for Speaker Diarization  
