@@ -1,9 +1,8 @@
 # Deep Self-Supervised Hierarchical Clustering for Speaker Diarization
 
 This repository is code used in our paper:
->  Deep Self-Supervised Hierarchical Clustering for Speaker Diarization  
+> Self-Supervised Representation Learning and Clustering for Speaker Diarization  
 > Prachi Singh, Sriram Ganapathy  
-> Accepted in Interspeech 2020
 ## Overview
 The recipe consists of:
   - extracting x-vectors using pretrained model
