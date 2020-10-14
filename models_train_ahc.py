@@ -117,7 +117,7 @@ class Deep_Ahc_model(nn.Module):
         try:
             ev_s,eig_s,_ = torch.svd(S)
         except:
-            bp()
+            ValueError(S)
         total_energy = torch.sum(eig_s)
         energy =0.0
         dim=1

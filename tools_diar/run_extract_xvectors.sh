@@ -78,31 +78,30 @@ if [ $stage -le 3 ]; then
 # converts x-vectors from ark to numpy and convert kaldi models into pickle
 for dataset in callhome1 callhome2; do
     srcdir=exp/xvectors_$dataset   # path of xvectors.scp
-    python ../services/read_scp_write_npy_embeddings.py vec $srcdir/xvectors.scp xvectors_npy/${dataset}/
-    python ../services/convert_kaldi_to_pkl.py $nnet_dir/xvectors_$dataset $dataset
-    python ../services/generate_groundtruth_label_sequence.py --dataset $dataset --segmentsfile ../lists/$dataset/tmp/segments \
-    --labelsfiledir ../ALL_CALLHOME_GROUND_LABELS/$dataset/threshold_0.75/ --ground_truth_rttm data/$dataset/rttm
+    awk '{print $1}' $srcdir/spk2utt > data/$dataset/${dataset}.list
+    python $SSC_fold/services/read_scp_write_npy_embeddings.py vec $srcdir/xvectors.scp xvectors_npy/${dataset}/ data/$dataset/${dataset}.list
+    python $SSC_fold/services/convert_kaldi_to_pkl.py $nnet_dir/xvectors_$dataset $dataset
 done
 
 # copy spk2utt,utt2spk, segments in lists folder required for training
 for dataset in callhome1 callhome2; do
     srcdir=exp/xvectors_$dataset   # path of xvectors.scp
 
-    mkdir -p ../lists/$dataset/tmp
-    cp $srcdir/spk2utt ../lists/$dataset/tmp/spk2utt
-    cp $srcdir/utt2spk ../lists/$dataset/tmp/utt2spk
-    cp $srcdir/segments ../lists/$dataset/tmp/segments
-    cp data/$dataset/reco2num_spk ../lists/$dataset/reco2num_spk
-    cp data/$dataset/reco2num_spk ../lists/$dataset/tmp/reco2num_spk
+    mkdir -p $SSC_fold/lists/$dataset/tmp
+    cp $srcdir/spk2utt $SSC_fold/lists/$dataset/tmp/spk2utt
+    cp $srcdir/utt2spk $SSC_fold/lists/$dataset/tmp/utt2spk
+    cp $srcdir/segments $SSC_fold/lists/$dataset/tmp/segments
+    cp data/$dataset/reco2num_spk $SSC_fold/lists/$dataset/reco2num_spk
+    cp data/$dataset/reco2num_spk $SSC_fold/lists/$dataset/tmp/reco2num_spk
 
-    awk '{print $1}' $srcdir/spk2utt > ../lists/$dataset/${dataset}.list
-    cp ../lists/$dataset/$dataset.list ../lists/$dataset/tmp/dataset.list
+    awk '{print $1}' $srcdir/spk2utt > $SSC_fold/lists/$dataset/${dataset}.list
+    cp ../lists/$dataset/$dataset.list $SSC_fold/lists/$dataset/tmp/dataset.list
 
 
     # store segments filewise in folder segments_xvec
-    mkdir -p ../lists/segments_xvec
-    cat ../lists/$dataset/${dataset}.list | while read i; do
-        grep $i ../lists/$dataset/tmp/segments > ../lists/segments_xvec/${i}.segments
+    mkdir -p $SSC_fold/lists/segments_xvec
+    cat $SSC_fold/lists/$dataset/${dataset}.list | while read i; do
+        grep $i $SSC_fold/lists/$dataset/tmp/segments > $SSC_fold/lists/segments_xvec/${i}.segments
     done
 done
 

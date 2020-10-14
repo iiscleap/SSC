@@ -41,13 +41,11 @@ if [ $TYPE == "parallel" ]; then
 	$which_python xvec_ahc_train.py \
 	--which_python $which_python \
 	--gpuid '0' \
-	--batchSize 64 \
 	--N_batches 1 \
 	--epochs 10 \
 	--lr 1e-3 \
     --eta 0.5 \
-	--lamda 0.0 \
-	--gamma 0.4 \
+	--alpha 0.4 \
 	--dataset $dataset \
 	--outf $outf \
 	--xvecpath tools_diar/xvectors_npy/${dataset}/ \
