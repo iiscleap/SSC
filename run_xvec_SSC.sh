@@ -13,7 +13,7 @@ dataset2=callhome2
 outf=tf_events/xvec_ahc_trained/${dataset}_scores/ # output folder path
 TYPE=parallel # training parallely multiple utterances
 nj=40 # number of jobs for parallelizing
-which_python=python # python with all needed installation
+PYTHON=python # python with all needed installation
 mkdir -p $outf/
 
 . ./cmd.sh
@@ -38,8 +38,8 @@ if [ $TYPE == "parallel" ]; then
         cd ../
     fi
 	$train_cmd JOB=1:$nj $outf/log/Deep_AHC.JOB.log \
-	$which_python xvec_ahc_train.py \
-	--which_python $which_python \
+	$PYTHON xvec_SSC_train.py \
+	--which_python $PYTHON \
 	--gpuid '0' \
 	--N_batches 1 \
 	--epochs 10 \
