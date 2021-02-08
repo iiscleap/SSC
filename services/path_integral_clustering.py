@@ -94,7 +94,7 @@ class PIC_ami_threshold:
 
 
         # build graph
-        ND = sortedDist[:, 1:self.K+1].copy()
+        ND = -sortedDist[:, 1:self.K+1].copy()
         NI = NNIndex[:, 1:self.K+1].copy()
         # XI = repmat([1:N]', 1, K);
         XI = np.dot(np.arange(self.N).reshape(-1,1),np.ones((1,self.K),dtype=int))
@@ -201,29 +201,36 @@ class PIC_ami_threshold:
         clusterLabels = np.ones((numSample,),dtype=int)
         # erg = 3
         th = self.th
+        groupNumber_actual = groupNumber
         # groupNumber = 1 #  default
+        dim=0
         while True: 
             # if (curGroupNum % 20 ) == 0 and VERBOSE:
                 # print('Group count: %d' % curGroupNum)
                 # print('minima:{}'.format(minima))
             # % Find two clusters with the best affinity
-            if curGroupNum <= 10: 
+            
+            if curGroupNum <= min(10,numClusters): 
                 
                 clusterlen = []
                 for i,lab in enumerate(initClusters):
                     clusterlen.append(len(lab))
                     clusterLabels[lab] = i
-               
+                # bp()
                 len_initclusters = np.array(clusterlen)
-                min_len = 10
-                smallest_clusters = np.where(len_initclusters<min_len)[0]
+                if numClusters > 10:
+                    min_len = 10
+                    smallest_clusters = np.where(len_initclusters<min_len)[0]
+                else:
+                    smallest_clusters =[]
+                
                 if len(smallest_clusters)==0:
                     min_len = int(numSample/curGroupNum * 0.2)
                     smallest_clusters = np.where(len_initclusters<min_len)[0]
                 iu1 = np.triu_indices(curGroupNum,k=1)
                 if np.sum(affinityTab[iu1])==0:
                     break
-                if curGroupNum == 10:
+                if curGroupNum == min(10,numClusters):
                     S = np.zeros((curGroupNum,curGroupNum))
                     
                     S[iu1] = affinityTab[iu1]
@@ -233,6 +240,7 @@ class PIC_ami_threshold:
                     # minS = np.sum(S,axis=1)
                     S[np.diag_indices(curGroupNum)]  = minS
                     S = (-1)*S
+                    # S[np.diag_indices(curGroupNum)]  = np.squeeze(clusterComp)
                     ev_s, eig_s , _ = np.linalg.svd(S,full_matrices=True)
                     total_energy = np.sum(eig_s)
                     print('total_energy:{}'.format(total_energy))
@@ -242,7 +250,8 @@ class PIC_ami_threshold:
                     while energy/total_energy <= th:
                         energy += eig_s[dim-1]
                         dim +=1
-                    groupNumber = dim
+                    dim = dim -1
+                    groupNumber = max(dim,groupNumber_actual)
                     print('dim:',dim)
                     if curGroupNum == groupNumber:
                         break
@@ -251,6 +260,7 @@ class PIC_ami_threshold:
                     num_with_min_cardinality = len(len_initclusters[len_initclusters >= min(round(0.1*numSample),10)])
                     print('num_with_min_cardinality:',num_with_min_cardinality)
                     groupNumber = min(num_with_min_cardinality,groupNumber)
+                    groupNumber=max(groupNumber_actual,groupNumber)
                     if curGroupNum == groupNumber:
                         break
 
@@ -467,7 +477,7 @@ class PIC_callhome_threshold:
         NNIndex = NNIndex[:,:self.K+1]
 
         #   build graph
-        ND = sortedDist[:, 1:self.K+1].copy()
+        ND = -sortedDist[:, 1:self.K+1].copy()
         # ND = np.exp(ND)
         NI = NNIndex[:, 1:self.K+1].copy()
         # XI = repmat([1:N]', 1, K);
@@ -614,6 +624,7 @@ class PIC_callhome_threshold:
                     # minS = np.sum(S,axis=1)
                     S[np.diag_indices(curGroupNum)]  = minS
                     S = (-1)*S
+                    # S[np.diag_indices(curGroupNum)] = np.squeeze(clusterComp)
                     ev_s, eig_s , _ = np.linalg.svd(S,full_matrices=True)
                     total_energy = np.sum(eig_s)
                     print('total_energy:{}'.format(total_energy))
@@ -841,7 +852,7 @@ class PIC_callhome:
         # disp(['  sigma = ' num2str(sqrt(sig2))]);
 
         #   build graph
-        ND = sortedDist[:, 1:self.K+1].copy()
+        ND = -sortedDist[:, 1:self.K+1].copy()
         # ND = np.exp(ND)
         NI = NNIndex[:, 1:self.K+1].copy()
         # XI = repmat([1:N]', 1, K);
@@ -963,53 +974,10 @@ class PIC_callhome:
         while True: 
             # if (curGroupNum % 20 ) == 0 and VERBOSE:
             #     print('Group count: %d' % curGroupNum)
-            
+            if curGroupNum <= groupNumber:
+                break
             # % Find two clusters with the best affinity
-            # if curGroupNum <= 10 : 
-                
-
-            #     clusterlen = []
-            #     for i,lab in enumerate(initClusters):
-            #         clusterLabels[lab] = i
-            #         clusterlen.append(len(lab))
-               
-            #     len_initclusters = np.array(clusterlen)
-            #     # min_len = 10
-            #     # smallest_clusters = np.where(len_initclusters<min_len)[0]
-            #     # if len(smallest_clusters)==0:
-            #     # min_len = 0
-            #     # smallest_clusters = np.where(len_initclusters<min_len)[0]
-                
-            #     min_len = max(tmp,round(numSample/curGroupNum * 0.25))
-                
-            #     smallest_clusters = np.where(len_initclusters<min_len)[0]
-            #     # check transition matrix
-            #     # Transmat = np.zeros((curGroupNum,curGroupNum))
-            #     # for i in range(numSample-1):
-            #     #     Transmat[clusterLabels[i],clusterLabels[i+1]] = Transmat[clusterLabels[i],clusterLabels[i+1]] + 1
-                
-            #     # Transmat = Transmat/np.sum(Transmat,1,keepdims=True)
-            #     # isdiagonal_dominant = 2*np.diag(Transmat)>=np.sum(Transmat,1)
-            #     # isdiagonal_dominant = isdiagonal_dominant[isdiagonal_dominant==True]
-            #     # diff_dominant = 2*np.diag(Transmat)-np.sum(Transmat,1)
-            #     # Tnew = (Transmat+Transmat.T)/2
-            #     # Tnew = Tnew/np.max(Tnew)              
-            #     iu1 = np.triu_indices(curGroupNum,k=1)               
-               
-            
-            #     # my_affinity =  np.inf * np.ones((curGroupNum,curGroupNum))
-            #     # if np.sum(np.abs(affinityTab[iu1])) > 0 and np.sum(Tnew[iu1]) > 0: 
-            #     #     my_affinity[iu1] = 0.95*affinityTab[iu1]/np.sum(np.abs(affinityTab[iu1])) -0.05*Tnew[iu1]/np.sum(Tnew[iu1])
-            #     # else:
-            #     #     my_affinity[iu1] = 0.95*affinityTab[iu1] -0.05*Tnew[iu1]
-
-            #     my_affinity = affinityTab
-            #     minAff = np.amin(my_affinity[:curGroupNum, :curGroupNum],axis= 0)
-            #     minIndex1 = np.argmin(my_affinity[:curGroupNum, :curGroupNum],axis= 0)
-
-            #     minIndex2 = np.argmin(minAff)
-            #     minIndex1 = minIndex1[minIndex2]       
-            # else:        
+         
             minAff = np.amin(affinityTab[:curGroupNum, :curGroupNum],axis= 0)
             minIndex1 = np.argmin(affinityTab[:curGroupNum, :curGroupNum],axis= 0)
 
@@ -1365,7 +1333,7 @@ class PIC_ami:
         NNIndex = NNIndex[:,:self.K+1]
 
         #   build graph
-        ND = sortedDist[:, 1:self.K+1].copy()
+        ND = -sortedDist[:, 1:self.K+1].copy()
         # ND = np.exp(ND)
         NI = NNIndex[:, 1:self.K+1].copy()
         # XI = repmat([1:N]', 1, K);
@@ -1476,6 +1444,8 @@ class PIC_ami:
             #     print('Group count: %d' % curGroupNum)
             
             # % Find two clusters with the best affinity
+            if curGroupNum <= groupNumber:
+                break
             if curGroupNum <= 10: 
                 
                 clusterlen = []
@@ -1485,8 +1455,11 @@ class PIC_ami:
                
                 len_initclusters = np.array(clusterlen)
                 
-                min_len = 10
-                smallest_clusters = np.where(len_initclusters<min_len)[0]
+                if numClusters > 10:
+                    min_len = 10
+                    smallest_clusters = np.where(len_initclusters<min_len)[0]
+                else:
+                    smallest_clusters =[]
                 if len(smallest_clusters)==0:
                     min_len = int(numSample/curGroupNum * 0.2)
                     smallest_clusters = np.where(len_initclusters<min_len)[0]
@@ -1699,7 +1672,7 @@ class PIC_org:
 
       
         #   build graph
-        ND = sortedDist[:, 1:self.K+1].copy()
+        ND = -sortedDist[:, 1:self.K+1].copy()
         NI = NNIndex[:, 1:self.K+1].copy()
 
         XI = np.dot(np.arange(self.N).reshape(-1,1),np.ones((1,self.K),dtype=int))
@@ -1990,7 +1963,7 @@ class PIC_org_threshold:
         NNIndex = NNIndex[:,:self.K+1]
 
         #   build graph
-        ND = sortedDist[:, 1:self.K+1].copy()
+        ND = -sortedDist[:, 1:self.K+1].copy()
         # ND = np.exp(ND)
         NI = NNIndex[:, 1:self.K+1].copy()
         # XI = repmat([1:N]', 1, K);
@@ -2105,7 +2078,7 @@ class PIC_org_threshold:
             #     print('Group count: %d' % curGroupNum)
             
             # % Find two clusters with the best affinity
-            if curGroupNum <= 10: 
+            if curGroupNum <= min(10,numClusters): 
                 
                 clusterlen = []
                 for i,lab in enumerate(initClusters):
@@ -2116,7 +2089,7 @@ class PIC_org_threshold:
                 iu1 = np.triu_indices(curGroupNum,k=1)
                 if np.sum(affinityTab[iu1])==0:
                     break
-                if curGroupNum == 10:
+                if curGroupNum == min(10,numClusters):
                     S = np.zeros((curGroupNum,curGroupNum))
                     
                     S[iu1] = affinityTab[iu1]
@@ -2126,6 +2099,7 @@ class PIC_org_threshold:
                     # minS = np.sum(S,axis=1)
                     S[np.diag_indices(curGroupNum)]  = minS
                     S = (-1)*S
+                    # S[np.diag_indices(curGroupNum)]  = np.squeeze(clusterComp)
                     ev_s, eig_s , _ = np.linalg.svd(S,full_matrices=True)
                     total_energy = np.sum(eig_s)
                     print('total_energy:{}'.format(total_energy))
@@ -2135,6 +2109,8 @@ class PIC_org_threshold:
                     while energy/total_energy <= th:
                         energy += eig_s[dim-1]
                         dim +=1
+                        
+                    dim = dim-1
                     groupNumber = dim
                     groupNumber=max(groupNumber_actual,groupNumber)
                     print('dim:',dim)

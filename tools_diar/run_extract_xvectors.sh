@@ -60,15 +60,13 @@ if [ $stage -le 1 ]; then
   # Extract x-vectors
 if [ $stage -le 2 ]; then
   # Extract x-vectors for the two partitions of callhome.
-  diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 5G" \
-    --nj 40 --window 1.5 --period 0.75 --apply-cmn false \
-    --min-segment 0.5 $nnet_dir \
-    data/callhome1_cmn exp/xvectors_callhome1
+  for dataset in callhome1 callhome2; do
+    diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 5G" \
+      --nj 40 --window 1.5 --period 0.75 --apply-cmn false \
+      --min-segment 0.5 $nnet_dir \
+      data/${dataset}_cmn $nnet_dir/xvectors_${dataset}
 
-  diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 5G" \
-    --nj 40 --window 1.5 --period 0.75 --apply-cmn false \
-    --min-segment 0.5 $nnet_dir \
-    data/callhome2_cmn exp/xvectors_callhome2
+  done
 
 fi
 # convert x-vectors from ark to numpy , convert kaldi plda, transform.mat, mean.vec into pickle format
@@ -77,15 +75,16 @@ fi
 if [ $stage -le 3 ]; then
 # converts x-vectors from ark to numpy and convert kaldi models into pickle
 for dataset in callhome1 callhome2; do
-    srcdir=exp/xvectors_$dataset   # path of xvectors.scp
+    srcdir=$nnet_dir/xvectors_${dataset}   # path of xvectors.scp
     awk '{print $1}' $srcdir/spk2utt > data/$dataset/${dataset}.list
-    python $SSC_fold/services/read_scp_write_npy_embeddings.py vec $srcdir/xvectors.scp xvectors_npy/${dataset}/ data/$dataset/${dataset}.list
-    python $SSC_fold/services/convert_kaldi_to_pkl.py $nnet_dir/xvectors_$dataset $dataset
+    python $SSC_fold/services/read_scp_write_npy_embeddings.py vec $srcdir/xvector.scp xvectors_npy/${dataset}/ data/$dataset2/${dataset2}.list
+    python $SSC_fold/services/convert_kaldi_to_pkl.py --kaldi_feats_path $nnet_dir/xvectors_$dataset --dataset $dataset --output_dir $SSC_fold
+
 done
 
 # copy spk2utt,utt2spk, segments in lists folder required for training
 for dataset in callhome1 callhome2; do
-    srcdir=exp/xvectors_$dataset   # path of xvectors.scp
+    srcdir=$nnet_dir/xvectors_${dataset}   # path of xvectors.scp
 
     mkdir -p $SSC_fold/lists/$dataset/tmp
     cp $srcdir/spk2utt $SSC_fold/lists/$dataset/tmp/spk2utt
@@ -95,13 +94,13 @@ for dataset in callhome1 callhome2; do
     cp data/$dataset/reco2num_spk $SSC_fold/lists/$dataset/tmp/reco2num_spk
 
     awk '{print $1}' $srcdir/spk2utt > $SSC_fold/lists/$dataset/${dataset}.list
-    cp ../lists/$dataset/$dataset.list $SSC_fold/lists/$dataset/tmp/dataset.list
+    cp $SSC_fold/lists/$dataset/$dataset.list $SSC_fold/lists/$dataset/tmp/dataset.list
 
 
-    # store segments filewise in folder segments_xvec
-    mkdir -p $SSC_fold/lists/segments_xvec
+   # store segments filewise in folder segments_xvec
+    mkdir -p $SSC_fold/lists/$dataset/segments_xvec
     cat $SSC_fold/lists/$dataset/${dataset}.list | while read i; do
-        grep $i $SSC_fold/lists/$dataset/tmp/segments > $SSC_fold/lists/segments_xvec/${i}.segments
+        grep $i $SSC_fold/lists/$dataset/tmp/segments > $SSC_fold/lists/$dataset/segments_xvec/${i}.segments
     done
 done
 

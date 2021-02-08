@@ -22,6 +22,7 @@ def setup():
 
     cmdparser.add_argument('--kaldi_feats_path', help='path of folder where transform.mat and mean.vec stored', type=str,required=True)
     cmdparser.add_argument('--dataset', help='dataset name', type=str, default="callhome1",required=True)
+    cmdparser.add_argument('--output_dir', help='path of SSC main folder to store pickle file', type=str, default="None",required=True)
 
 
     cmdargs = cmdparser.parse_args()
@@ -53,7 +54,8 @@ def kaldiPlda2numpydict(pldaFile):
 def load_kaldi_matrices(args):
     fold_local = args.kaldi_feats_path
     dataset = args.dataset
-    outpicklefile = 'lists/{}/plda_{}.pkl'.format(dataset,dataset)
+    out_fold = args.output_dir
+    outpicklefile = '{}/lists/{}/plda_{}.pkl'.format(out_fold,dataset,dataset)
 
     if os.path.isfile(outpicklefile):
         print("file exits!")
@@ -65,8 +67,8 @@ def load_kaldi_matrices(args):
     else:
         print('plda model does not exist!')
         plda = {}
-    transform_mat_file = '{}/transform.mat'.format(fold_local,dataset2)
-    mean_vec_file = '{}/mean.vec'.format(fold_local,dataset2)
+    transform_mat_file = '{}/transform.mat'.format(fold_local,dataset)
+    mean_vec_file = '{}/mean.vec'.format(fold_local,dataset)
     transform_mat = np.asarray([w.split() for w in np.asarray(subprocess.check_output(["copy-matrix","--binary=false", transform_mat_file, "-"]).decode('utf-8').strip()[2:-2].split('\n'))]).astype(float)
     mean_vec = np.asarray(subprocess.check_output(["copy-vector", "--binary=false",mean_vec_file, "-"]).decode('utf-8').strip()[1:-2].split()).astype(float)
     plda['transform_mat'] = transform_mat

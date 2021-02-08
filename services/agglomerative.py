@@ -92,7 +92,7 @@ def unique(arr, return_ind=False):
 
 
 class clustering:
-    def __init__(self,n_clusters,clusterlen,lamda,labelfull,dist=None):
+    def __init__(self,n_clusters,clusterlen,labelfull,lamda=0.0,dist=None):
         self.n_clusters = n_clusters
         self.labelfull = labelfull.copy()
         self.mergeind = []
@@ -109,12 +109,12 @@ class clustering:
     def initialize_clusters(self,A):
         sampleNum = len(A)
         NNIndex = np.argsort(A)[:,::-1]
-        clusterLabels = np.zeros((sampleNum, 1))
+        clusterLabels = np.ones((sampleNum, 1))*-1
         counter = 0
         for i in range(sampleNum):
             idx = NNIndex[i,:2]
             assignedCluster = clusterLabels[idx]
-            assignedCluster = np.unique(assignedCluster[assignedCluster > 0])
+            assignedCluster = np.unique(assignedCluster[assignedCluster >= 0])
             if len(assignedCluster) == 0:
                 clusterLabels[idx] = counter
                 counter = counter + 1
@@ -197,10 +197,68 @@ class clustering:
             self.A = B.copy()
         return self.labelfull,self.clusterlen,self.mergeind
 
+    def Ahc_ami_full(self,A):
+        self.A = A.copy()
+        predicted_clusters = 1
+        while 1:        
+            B = self.A.copy()
+            tmp_mat=self.compute_distance()
+            self.A = self.A*tmp_mat # all elementwise operation
+            self.A = np.triu(self.A,k=1)
+            cur_samp = self.A.shape[0]
+            minA = np.min(self.A)
+            self.A[np.tril_indices(cur_samp)]=-abs(minA)*100
+            if cur_samp <=10:
+                min_len = min(20,int(0.1*len(self.labelfull)))
+                smallest_clusters = np.where(np.array(self.clusterlen)<min_len)[0]
+
+                if len(smallest_clusters)>0:
+                    ind = np.where(self.A[smallest_clusters]==np.amax(self.A[smallest_clusters]))
+                    minind = min(smallest_clusters[ind[0][0]],ind[1][0])
+                    maxind = max(smallest_clusters[ind[0][0]],ind[1][0])
+                predicted_clusters =len(np.array(self.clusterlen)[np.array(self.clusterlen)>=min_len])
+                print('predicted_clusters:',predicted_clusters)
+            if cur_samp > 10 or len(smallest_clusters) ==0:
+                ind = np.where(self.A==np.amax(self.A))
+                minind = min(ind[0][0],ind[1][0])
+                maxind = max(ind[0][0],ind[1][0])
+
+            if self.n_clusters != None:
+                if cur_samp == self.n_clusters:
+                    return self.labelfull,self.clusterlen,self.mergeind
+                # if self.dist!=None:
+                #    if ((self.A<self.dist).all() or cur_samp==1):
+                #         return self.labelfull,self.clusterlen,self.mergeind
+            else:
+                if (self.A<self.dist).all() and cur_samp<=predicted_clusters:
+                    return self.labelfull,self.clusterlen,self.mergeind
+            
+            trackind = [list(np.where(self.labelfull==minind)[0])]
+            trackind.extend(np.where(self.labelfull==maxind)[0])
+            if minind == maxind:
+                print(minind,maxind)
+            self.clusterlen[minind] +=self.clusterlen[maxind]
+            self.clusterlen.pop(maxind)
+            self.labelfull[np.where(self.labelfull==maxind)[0]]=minind
+            unifull = list(np.unique(self.labelfull))
+            labelfullnew = np.zeros(self.labelfull.shape).astype(int)
+            for i in range(len(self.labelfull)):
+                labelfullnew[i]=unifull.index(self.labelfull[i])
+            self.labelfull = labelfullnew
+            self.mergeind.append(trackind)
+            newsamp = cur_samp -1
+            # recomputation
+            B[:,minind] =B[:,minind]+B[:,maxind]
+            B[minind] = B[:,minind]
+            B = np.delete(B,maxind,1)
+            B = np.delete(B,maxind,0)
+            B[np.diag_indices(newsamp)]=np.min(B)
+            B[np.diag_indices(newsamp)] = np.max(B,axis=1)
+            self.A = B.copy()
+        return self.labelfull,self.clusterlen,self.mergeind
 
     def get_params(self):
         return self.labelfull, self.mergeind
-
 
 def write_results_dict(results_dict, output_file,reco2utt):
     """Writes the results in label file"""
@@ -222,6 +280,8 @@ def write_results_dict(results_dict, output_file,reco2utt):
             
              
         i=i+1
+
+
 
 def PIC_clustering():
     args = setup()
@@ -246,13 +306,16 @@ def PIC_clustering():
 
         if "baseline" in fold :
             b = np.load(fold+'/'+f+'.npy')
-            b = (b+1)/2
+            b = b/np.max(abs(b))
+            
 
+            b = 1/(1+np.exp(-b))
         else:
-
             deepahcmodel = pickle.load(open(fold+'/'+f+'.pkl','rb'))
             b = deepahcmodel['output']
-            b = (b+1)/2
+            b = b/np.max(abs(b))
+            
+            b = 1/(1+np.exp(-b))
 
             # weighting for temporal weightage
             N= b.shape[0]
@@ -279,11 +342,9 @@ def PIC_clustering():
                     clus = mypic.PIC_ami(n_clusters,clusterlen,labels,affinity,K=k,z=z)
             else:
                 k = min(k,len(b)-1)
-                if "cosine" in fold:
-                    clus = mypic.PIC_callhome(n_clusters,clusterlen,labels,affinity,K=k,z=z)
-                else:
-                    clus = mypic.PIC_ami(n_clusters,clusterlen,labels,affinity,K=k,z=z)
-
+               
+                clus = mypic.PIC_callhome(n_clusters,clusterlen,labels,affinity,K=k,z=z)
+            
             labelfull,clusterlen= clus.gacCluster()
             print("n_clusters:{} clusterlen:{}".format(n_clusters,clusterlen))
 
@@ -308,25 +369,34 @@ def PIC_clustering():
 def AHC_clustering():
     args = setup()
     fold = args.score_path
-    file_list = np.genfromtxt(args.score_file,dtype=str)
+    
+    file_list = open(args.score_file,'r').readlines()
     out_file = args.out_file
     reco2utt = args.reco2utt
     reco2num = args.reco2num
     threshold=args.threshold
     lamda = args.lamda
-    dataset = fold.split('/')[-3]
+    dataset = args.dataset
+    neb = 2
+    beta1 = 0.95
     print(threshold)
     if reco2num != 'None':
         reco2num_spk = open(args.reco2num).readlines()
     results_dict ={}
-    for i,f in enumerate(file_list):
-        print(f)
+    for i,fn in enumerate(file_list):
+        f=fn.rsplit()[0]
+        print('filename: ',f)
 
         if "baseline" in fold:
             b = np.load(fold+'/'+f+'.npy')
         else:
-            deepahcmodel = pickle.load(open(fold+'/'+f+'.pkl','rb'))
+            try:
+                deepahcmodel = pickle.load(open(fold+'/'+f+'.pkl','rb'))
+            except:
+                deepahcmodel = sio.loadmat(open(fold+'/'+f+'.mat','rb'))
             b = deepahcmodel['output']
+
+
         clusterlen = [1]*b.shape[0]
         labels = np.arange(b.shape[0])
        
@@ -338,12 +408,17 @@ def AHC_clustering():
             threshold = None
         else:
             n_clusters = None         
-            clus =clustering(n_clusters,clusterlen,lamda,labels,dist=threshold)
-        labelfull,_,mergeind=clus.my_clustering_full(b)
+        
+        clus =clustering(n_clusters,clusterlen,labels,dist=threshold)
+        
+        labelfull,clusterlen,mergeind=clus.Ahc_ami_full(b)
+        n_clusters = len(clusterlen)
+        print("n_clusters:{} clusterlen:{}".format(n_clusters,clusterlen))
         uni1,method1=unique(labelfull,True)
         results_dict[f]=method1     
 
     write_results_dict(results_dict, out_file,reco2utt)
+
 
 
 if __name__ == "__main__":

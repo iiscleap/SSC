@@ -3,7 +3,7 @@ import numpy as np
 import glob
 import kaldi_io
 import sys
-
+from pdb import set_trace as bp
 
 #Usage
 if len(sys.argv)!=5:
@@ -23,7 +23,7 @@ def convert_to_npy(datatype,arkscppath,outputnpyfilepath,file_list_path):
     	os.makedirs(outputnpyfilepath)
     else:
         print("xvectors numpy path exists !")
-        exit()
+        # exit()
     file_name = os.path.basename(arkscppath)
     ext = os.path.splitext(file_name)[1]
     if datatype=='mat':
@@ -49,15 +49,21 @@ def convert_to_npy(datatype,arkscppath,outputnpyfilepath,file_list_path):
     for count,(i,j) in enumerate(d.items()):
         if count == 0:
             system = j.reshape(1,-1)
-        if count % 100 == 0:
-            print("Done with {} files".format(count))
+        # if count % 100 == 0:
+        #     print("Done with {} files".format(count))
         fn = file_list[file_count].rsplit()[0]
         if fn in i:
             system = np.vstack((system,j))
         else:
-            np.save(outputnpyfilepath+'/'+fn,system)
+            print('fielname:',fn)
+            if not os.path.isfile(outputnpyfilepath+'/'+fn+'.npy'):
+                np.save(outputnpyfilepath+'/'+fn+'.npy',system)
             file_count = file_count + 1
             system = j.reshape(1,-1)
+    # last file
+    print('fielname:',fn)
+    if not os.path.isfile(outputnpyfilepath+'/'+fn+'.npy'):
+        np.save(outputnpyfilepath+'/'+fn+'.npy',system)
         
 if __name__ == "__main__":
     convert_to_npy(datatype,arkscppath,outputnpyfilepath,file_list_path)

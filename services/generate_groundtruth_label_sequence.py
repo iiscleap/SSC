@@ -71,15 +71,16 @@ def generate_labels(segmentsfile, labelsfiledir, ground_truth_rttm, threshold):
 if __name__=="__main__":
 
  
-    default_dataset="callhome1"
-    threshold = 0.75
-    default_segments = "../lists/{}/tmp/segments".format(default_dataset)
-    default_gt_rttm = "data/{}/rttm".format(default_dataset)
-    default_labels_dir = "../ALL_CALLHOME_GROUND_LABELS/{}/threshold_{}".format(default_dataset,threshold)
+    default_dataset="dihard_dev_2020_track1"
+    kaldi_recipe_path="/data1/prachis/Dihard_2020/Dihard_2020_track1"
+    threshold = 0.25
+    default_segments = "lists/{}_xvec0_5s/tmp/segments".format(default_dataset)
+    default_gt_rttm = "{}/data/{}/rttm".format(kaldi_recipe_path,default_dataset)
+    default_labels_dir = "ALL_GROUND_LABELS/{}_xvec0_5s/threshold_{}".format(default_dataset,threshold)
 
     print("In the label generation script...")
     parser = argparse.ArgumentParser(description='Speaker Label generation for embeddings')
-    parser.add_argument('--dataset', default=default_dataset, type=str, help='dataset', nargs='?')
+    # parser.add_argument('--dataset', default=default_dataset, type=str, help='dataset', nargs='?')
     parser.add_argument('--segmentsfile', default=default_segments, type=str, metavar='PATH', help='path of the embedding segments file', nargs='?')
     parser.add_argument('--labelsfiledir', default=default_labels_dir, type=str, metavar='PATH', help='path of the labels file', nargs='?')
     parser.add_argument('--ground_truth_rttm', default=default_gt_rttm, type=str, metavar='PATH', help='path of the ground truth rttm file', nargs='?')
