@@ -47,7 +47,7 @@ fi
 
 if [ ! -d "utils" ];then
     echo "$0:ERROR:Softlink to kaldi utils folder not present. Kindly create soft link to kaldi utils folder."
-    echo "$0:eg: ln -sf /state/partition1/softwares/Kaldi_Sept_2020/kaldi/egs/wsj/s5/utils ."
+    echo "$0:eg: ln -sf $KALDI_ROOT/egs/wsj/s5/utils ."
     exit 1
 fi
 

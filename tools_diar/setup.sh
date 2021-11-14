@@ -1,4 +1,5 @@
 
+
 if [ $# != 2 ];then
     echo "Usage:$0 <kaldi_path> <ami_corpus_dir>"
     echo "kaldi_path: Path to kaldi root  directory"
@@ -38,7 +39,7 @@ ln -sf $util_path .
 
 step_path=$kaldi_path/egs/wsj/s5/steps
 if [ ! -d $step_path ];then
-    echo "$0:ERROR:steps folder not present at $step_path. Problrm in kaldi setup."
+    echo "$0:ERROR:steps folder not present at $step_path. Problem in kaldi setup."
     exit 1
 fi
 ln -sf $step_path .
@@ -51,4 +52,6 @@ do
         ./create_data_dir.sh $amicorpus data/${data_type} $dataset $data_type
     done
 done
+
+   
 

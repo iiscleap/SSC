@@ -17,6 +17,14 @@ conf=callhome_xvector_models/conf
 # Prepare datasets
 if [ $stage -le 0 ]; then
 
+  if [ ! -d "utils" ];then
+      ln -sf $KALDI_ROOT/egs/wsj/s5/utils .
+  fi
+
+  if [ ! -d "steps" ];then
+      ln -sf $KALDI_ROOT/egs/wsj/s5/steps .
+  fi
+
   # Prepare the Callhome portion of NIST SRE 2000.
   local/make_callhome.sh $data_root data/
 
