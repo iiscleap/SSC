@@ -1,10 +1,9 @@
 #!/bin/bash
 
 
-# This script is just a copy of the run.sh in the egs/callhome_diarization/v2/,
-# which was used to train the system in this resouce.  Since you the x-vector
-# DNN is already trained, you will most likely just need to run the stages for
-# computing features and extracting and clustering x-vectors.
+# This script is modified version of egs/callhome_diarization/v2/run.sh,
+# Till stage 2, involves feature extraction and x-vector extraction using pretrained model
+# Stage 2 and Stage 3 involves converting x-vectors into numpy format and creating data folders needed for SSC training
 
 . ./cmd.sh
 . ./path.sh
