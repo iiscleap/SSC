@@ -86,15 +86,14 @@ $ bash gen_rttm.sh --stage <1/2> --modelpath <path of model to evaluate> --which
 - Generates ``der.scp`` in modelpath which contains filewise DER and other metric like JER.
 
 ## Cite
-If you are using the resource, please cite as follows:
-@ARTICLE{9415169,
-  author={Singh, Prachi and Ganapathy, Sriram},
-  journal={IEEE/ACM Transactions on Audio, Speech, and Language Processing}, 
-  title={Self-Supervised Representation Learning With Path Integral Clustering for Speaker Diarization}, 
-  year={2021},
-  volume={29},
-  number={},
-  pages={1639-1649},
+If you are using the resource, please cite as follows: <br />
+@ARTICLE{9415169,  <br />
+  author={Singh, Prachi and Ganapathy, Sriram}, <br />
+  journal={IEEE/ACM Transactions on Audio, Speech, and Language Processing},  <br />
+  title={Self-Supervised Representation Learning With Path Integral Clustering for Speaker Diarization},  <br />
+  year={2021},  <br />
+  volume={29},  <br />
+  pages={1639-1649},  <br />
   doi={10.1109/TASLP.2021.3075100}}
   
  
