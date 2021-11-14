@@ -62,7 +62,7 @@ if [ $DATA = "Callhome" ]; then
         
           
           bash ../compute_rttm.sh callhome $modelpath/callhome/$model/
-          bash ../score.sh $modelpath/callhome/$model/ data/callhome/filewise_rttms/
+          bash ../score.sh $modelpath/callhome/$model/ data/callhome/fullref.rttm
           
           echo "filewise der at $modelpath/callhome/$model/der.scp"
         
@@ -122,7 +122,7 @@ if [ $DATA = "Callhome" ]; then
         $modelpath/results/DER_threshold_${model}.txt)
        echo "der callhome: $der"
         bash ../compute_rttm.sh callhome $modelpath/callhome/$model/rttm 
-        bash ../score.sh $modelpath/callhome/ ../ref_callhome.scp
+        bash ../score.sh $modelpath/callhome/ data/callhome/fullref.rttm
           
         echo "filewise der at $modelpath/callhome/der.scp"
     
@@ -155,7 +155,7 @@ else
             $score_cosine_path/${metric}_${labels}_oracle/DER.txt)
             echo "der $dataset: $der"
             bash ../compute_rttm.sh $dataset $modelpath/$dataset/$model/rttm 
-            bash ../score.sh $modelpath/$dataset/$model/ data/$dataset/filewise_rttms/ 
+            bash ../score.sh $modelpath/$dataset/$model/ data/$dataset/rttm
       
             echo "filewise der at $modelpath/$dataset/$model/der.scp"
           done
@@ -189,7 +189,7 @@ else
             $score_cosine_path/${metric}_${labels}_t$threshold/DER.txt)
             echo "der $dataset at threshold $threshold: $der"
             bash ../compute_rttm.sh $dataset $modelpath/$dataset/$model/
-            bash ../score.sh $modelpath/$dataset/$model/ data/$dataset/filewise_rttms/ 
+            bash ../score.sh $modelpath/$dataset/$model/ data/$dataset/rttm 
       
             echo "filewise der at $modelpath/$dataset/$model/der.scp"
           done
