@@ -33,6 +33,14 @@ If you are a Kaldi novice, please consult the following for additional documenta
  $ echo "export KALDI_ROOT="/path_of_kaldi_directory/kaldi" >> $local_dir/path.sh
  $ echo "export KALDI_ROOT="/path_of_kaldi_directory/kaldi" >> $local_dir/tools_dir/path.sh
  ```
+- Create Softlinks of necesary directories:
+```
+$ local_dir="Full_path_of_cloned_repository"
+$ cd $local_dir/tools_dir
+$ . ./path.sh
+$ ln -sf $KALDI_ROOT/egs/wsj/s5/utils .  # utils dir
+$ ln -sf $KALDI_ROOT/egs/wsj/s5/steps .  # steps dir
+```
 - For Callhome set : Input x-vectors features are obtained using [Kaldi Callhome-diarization](https://kaldi-asr.org/models/m6). Pre-trained x-vector model and plda model including global mean and PCA transform needed  for training are given in [``tools_diar/callhome_xvector_models``](https://github.com/iiscleap/SSC/tree/master/tools_diar/callhome_xvector_models) 
 - For AMI Set : Input x-vectors features are obtained using [DIHARD-II Evaluation Repo] (https://github.com/iiscleap/DIHARD_2019_baseline_alltracks/tree/master/data). Pre-trained x-vector model and plda model including global mean and PCA transform needed  for training are given in [``tools_diar/AMI_xvector_models``].
 -  Performance is evaluated using [dscore](https://github.com/nryant/dscore). Download all the required dependencies in the same python environment.
