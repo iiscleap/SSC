@@ -2,7 +2,7 @@
 # @author: prachi singh 
 # @email: prachisingh@iisc.ac.in 
 
-# This script calls DNN training python script xvec_ahc_train.py 
+# This script calls DNN training python script xvec_ssc_train.py 
 # All the parameters needed for training are passed as argument in this script
 # If system supports multiple jobs then TYPE is set as parallel and nj represents number of jobs
 # which_python variable is to pass the python full path where the required libraries are installed otherwise it will throw errors
