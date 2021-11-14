@@ -14,6 +14,7 @@ data_root=path/of/AMIcorpus   # AMI dataset path
 stage=0
 nnet_dir=ami_xvector_models/exp/xvector_nnet_1a/  # path of xvector model
 conf=ami_xvector_models/conf
+njobs=15
 # Prepare datasets
 if [ $stage -le 0 ]; then
 
@@ -23,31 +24,28 @@ fi
 
 # Prepare features
 if [ $stage -le 1 ]; then
-  # The script local/make_callhome.sh splits callhome into two parts, called
-  # callhome1 and callhome2.  Each partition is treated like a held-out
-  # dataset, and used to estimate various quantities needed to perform
-  # diarization on the other part (and vice versa).
+ 
   for name in ami_dev ami_eval; do
-    steps/make_mfcc.sh --mfcc-config $conf/mfcc.conf --nj 40 \
+    steps/make_mfcc.sh --mfcc-config $conf/mfcc.conf --nj $njobs \
       --cmd "$train_cmd" --write-utt2num-frames true \
       data/$name exp/make_mfcc $mfccdir
     utils/fix_data_dir.sh data/$name
   done
   
   for name in ami_dev ami_eval; do
-    local/nnet3/xvector/prepare_feats.sh --nj 40 --cmd "$train_cmd" \
+    local/nnet3/xvector/prepare_feats.sh --nj $njobs --cmd "$train_cmd" \
       data/$name data/${name}_cmn exp/${name}_cmn
       utils/fix_data_dir.sh data/${name}_cmn
   done
 
+ fi
  
-
   # Extract x-vectors
 if [ $stage -le 2 ]; then
   # Extract x-vectors for the ami_dev and ami_eval sets.
   for dataset in ami_dev ami_eval; do
     diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 5G" \
-      --nj 40 --window 1.5 --period 0.75 --apply-cmn false \
+      --nj $njobs --window 1.5 --period 0.75 --apply-cmn false \
       --min-segment 0.5 $nnet_dir \
       data/${dataset}_cmn $nnet_dir/xvectors_${dataset}
 

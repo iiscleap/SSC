@@ -61,8 +61,7 @@ if [ $stage -le 1 ]; then
       data/$name data/${name}_cmn exp/${name}_cmn
       utils/fix_data_dir.sh data/${name}_cmn
   done
-
- 
+fi
 
   # Extract x-vectors
 if [ $stage -le 2 ]; then
