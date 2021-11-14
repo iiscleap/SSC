@@ -2,7 +2,7 @@
 # @author: prachi singh 
 # @email: prachisingh@iisc.ac.in 
 
-# This script calls DNN training python script xvec_ssc_train.py 
+# This script calls DNN training python script xvec_SSC_train.py 
 # All the parameters needed for training are passed as argument in this script
 # If system supports multiple jobs then TYPE is set as parallel and nj represents number of jobs
 # which_python variable is to pass the python full path where the required libraries are installed otherwise it will throw errors
@@ -44,7 +44,7 @@ if [ $TYPE == "parallel" ]; then
         cd ../
     fi
     $train_cmd JOB=1:$nj $outf/log/Deep_AHC.JOB.log \
-    $which_python xvec_ssc_train.py \
+    $which_python xvec_SSC_train.py \
     --which_python $which_python \
     --gpuid '0' \
     --N_batches 1 \
@@ -63,7 +63,7 @@ if [ $TYPE == "parallel" ]; then
     --rttm_ground_path $kaldi_recipe_path/data/callhome/filewise_rttms/
 
 else
-    $which_python xvec_ssc_train.py \
+    $which_python xvec_SSC_train.py \
     --which_python $which_python \
     --gpuid '0' \
     --N_batches 1 \

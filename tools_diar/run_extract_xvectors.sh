@@ -13,7 +13,7 @@ vaddir=`pwd`/mfcc
 data_root=/export/corpora/NIST/LDC2001S97/   # callhome dataset path
 stage=0
 nnet_dir=callhome_xvector_models/exp/xvector_nnet_1a/  # path of xvector model
-
+conf=callhome_xvector_models/conf
 # Prepare datasets
 if [ $stage -le 0 ]; then
 
@@ -29,7 +29,7 @@ if [ $stage -le 1 ]; then
   # dataset, and used to estimate various quantities needed to perform
   # diarization on the other part (and vice versa).
   for name in callhome1 callhome2; do
-    steps/make_mfcc.sh --mfcc-config conf/mfcc.conf --nj 40 \
+    steps/make_mfcc.sh --mfcc-config $conf/mfcc.conf --nj 40 \
       --cmd "$train_cmd" --write-utt2num-frames true \
       data/$name exp/make_mfcc $mfccdir
     utils/fix_data_dir.sh data/$name
@@ -94,12 +94,13 @@ for dataset in callhome1 callhome2; do
 
     awk '{print $1}' $srcdir/spk2utt > $SSC_fold/lists/$dataset/${dataset}.list
     cp $SSC_fold/lists/$dataset/$dataset.list $SSC_fold/lists/$dataset/tmp/dataset.list
-
-
-   # store segments filewise in folder segments_xvec
+     
+   mkdir data/$dataset/filewise_rttms
+   # store segments filewise in folder segments_xvec and create filewise_rttms
     mkdir -p $SSC_fold/lists/$dataset/segments_xvec
     cat $SSC_fold/lists/$dataset/${dataset}.list | while read i; do
         grep $i $SSC_fold/lists/$dataset/tmp/segments > $SSC_fold/lists/$dataset/segments_xvec/${i}.segments
+        grep $i data/$dataset/rttm > data/$dataset/filewise_rttms/${i}.rttm
     done
 done
 

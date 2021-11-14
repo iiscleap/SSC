@@ -19,7 +19,7 @@ which_python=python # python environment
 main_dir=default
 . ./utils/parse_options.sh
 
-cosinefold=cosine_pca_baseline/${dataset_ftdnn}_scores/cosine_scores/
+cosinefold=cosine_pca_baseline/${dataset}_scores/cosine_scores/
 mkdir -p $cosinefold
 
 # --reco2num_spk lists/$dataset/tmp/split$nj/JOB/reco2num_spk \
@@ -39,7 +39,7 @@ if [ $TYPE == "parallel" ]; then
         cd ../
     fi
     $train_cmd JOB=1:$nj $outf/log_new/Deep_AHC.JOB.log \
-    $which_python xvec_ssc_train.py \
+    $which_python xvec_SSC_train.py \
     --which_python $which_python \
     --gpuid '1' \
     --dataset $dataset \
@@ -59,7 +59,7 @@ if [ $TYPE == "parallel" ]; then
     --kaldimodel lists/$dataset2/plda_${dataset2}.pkl \
     --rttm_ground_path $kaldi_recipe_path/data/$dataset/filewise_rttms/ 
 else
-    $which_python xvec_ssc_train.py \
+    $which_python xvec_SSC_train.py \
     --which_python $which_python \
     --gpuid '1' \
     --dataset $dataset \
@@ -76,7 +76,7 @@ else
     --reco2utt_list lists/$dataset/tmp/spk2utt \
     --reco2num_spk lists/$dataset/tmp/reco2num_spk \
     --segments lists/$dataset/segments_xvec \
-    --kaldimodel lists/$dataset2/plda_${dataset2}.pkl \
+    --kaldimodel lists/ami/plda_ami.pkl \
     --rttm_ground_path $kaldi_recipe_path/data/$dataset/filewise_rttms/ 
 
 done
