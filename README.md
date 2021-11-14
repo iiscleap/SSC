@@ -41,7 +41,14 @@ If you are a Kaldi novice, please consult the following for additional documenta
  - This step is to run kaldi diarization pipeline till x-vector extraction using pre-trained model
  - Additionally it will convert x-vectors in ark format into numpy format to run in pytorch. It will also convert kaldi plda model into pickle format.<br />
  For Callhome
- - Replace "data_root" with path of callhome dataset in [``tools_diar/run_extract_xvectors.sh``](https://github.com/iiscleap/SSC/blob/master/tools_diar/run_extract_xvectors.sh)<br />
+ - Replace "data_root" with path of callhome dataset in [``tools_diar/run_extract_xvectors.sh``](https://github.com/iiscleap/SSC/blob/master/tools_diar/run_extract_xvectors.sh)
+ - Run following commands:
+ ```sh
+ $ local_dir="Full_path_of_cloned_repository"
+ $ cd $local_dir/tools_diar
+ $ bash run_extract_xvectors.sh
+ ```
+
  For AMI <br />
  - Replace "data_root" with path of AMI dataset in [``tools_diar/run_extract_xvectors_ami.sh``](https://github.com/iiscleap/SSC/blob/master/tools_diar/run_extract_xvectors_ami.sh)
  - Run following commands:
