@@ -33,7 +33,7 @@ If you are a Kaldi novice, please consult the following for additional documenta
  $ echo "export KALDI_ROOT="/path_of_kaldi_directory/kaldi" >> $local_dir/path.sh
  $ echo "export KALDI_ROOT="/path_of_kaldi_directory/kaldi" >> $local_dir/tools_dir/path.sh
  ```
-- Create Softlinks of necesary directories:
+- Create Softlinks of necessary directories:
 ```
 $ local_dir="Full_path_of_cloned_repository"
 $ cd $local_dir/tools_dir
